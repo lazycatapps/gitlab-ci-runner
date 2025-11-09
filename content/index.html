@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitLab CI Runner Manager - User Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #fc6d26;
+            --secondary-color: #fca326;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --dark-color: #2c3e50;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --code-bg: #f4f4f9;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light-bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .lang-switch:hover {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin: 20px 0 15px;
+            font-size: 1.3rem;
+        }
+
+        .card p, .card li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #0c5460;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #856404;
+            color: #856404;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #155724;
+            color: #155724;
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #e83e8c;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: #333;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .badge-info {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: var(--light-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .steps {
+            counter-reset: step-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            margin-bottom: 30px;
+            padding-left: 50px;
+            position: relative;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--primary-color);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+            background: white;
+            margin-top: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .lang-content {
+            display: none;
+        }
+
+        .lang-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .lang-switch {
+                position: static;
+                margin: 10px auto;
+                display: block;
+                width: fit-content;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="lang-switch" onclick="toggleLanguage()">
+            <span id="lang-btn-text">English</span>
+        </button>
+        <div class="container">
+            <h1>GitLab CI Runner Manager</h1>
+            <p id="header-subtitle">通过 Web 界面轻松管理 GitLab CI/CD Runner</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Chinese Content -->
+        <div id="content-zh" class="lang-content active">
+            <div class="card">
+                <h2>欢迎使用 GitLab CI Runner 管理器</h2>
+                <p>GitLab CI Runner 管理器是一个为 GitLab Runner 设计的 Web 管理界面,让您可以在 Lazycat 平台上轻松部署和管理多个 GitLab CI/CD Runner。</p>
+
+                <p>GitLab Runner 是 GitLab CI/CD 的核心组件,负责执行持续集成和持续交付任务。通过本工具提供的 Web 界面,您可以方便地注册、启动、停止 Runner,查看运行状态和日志,无需复杂的命令行操作。</p>
+
+                <div class="alert alert-warning">
+                    <strong>重要提示:</strong> 当前版本仅支持 <strong>shell 模式</strong> 的 GitLab Runner。Docker executor、Kubernetes executor 等其他执行器模式暂不支持,敬请期待后续版本更新!
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>主要功能</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🚀 简单易用的 Web 界面</h4>
+                        <p>通过浏览器即可管理所有 Runner,无需命令行操作</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📝 快速注册 Runner</h4>
+                        <p>支持通过界面输入 URL 和 Token 快速注册新 Runner</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 实时状态监控</h4>
+                        <p>查看每个 Runner 的运行状态(运行中/已停止)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📋 日志查看</h4>
+                        <p>实时查看 Runner 的运行日志(最近 1000 行)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔄 单独重启</h4>
+                        <p>支持单独重启指定的 Runner</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🗑️ 删除管理</h4>
+                        <p>可以删除不需要的 Runner</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💾 数据持久化</h4>
+                        <p>Runner 配置自动保存,重启不丢失</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔒 安全隔离</h4>
+                        <p>基于 Lazycat 平台的容器隔离技术</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>快速开始</h2>
+                <ol class="steps">
+                    <li>
+                        <strong>在 Lazycat 平台部署应用</strong>
+                        <p>访问 <a href="https://lazycat.cloud" target="_blank">Lazycat 平台</a>,搜索并一键部署 "GitLab CI Runner 管理器"。</p>
+                    </li>
+                    <li>
+                        <strong>访问 Web 界面</strong>
+                        <p>部署成功后,通过应用的域名访问 Web 管理界面。</p>
+                    </li>
+                    <li>
+                        <strong>注册 Runner</strong>
+                        <p>点击 "注册 Runner" 按钮,输入您的 GitLab 实例 URL 和 Runner Token。</p>
+                        <ul>
+                            <li><strong>GitLab URL:</strong> 您的 GitLab 实例地址,例如 <code>https://gitlab.com</code></li>
+                            <li><strong>Runner Token:</strong> 在 GitLab 项目或群组的 Settings → CI/CD → Runners 中获取</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>管理 Runner</strong>
+                        <p>注册成功后,Runner 会自动启动。您可以在界面上查看状态、重启、查看日志或删除 Runner。</p>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h2>API 端点</h2>
+                <p>本应用提供 RESTful API 接口,方便您进行自动化管理:</p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>方法</th>
+                                <th>路径</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>GET</code></td>
+                                <td><code>/api/version</code></td>
+                                <td>获取版本信息</td>
+                            </tr>
+                            <tr>
+                                <td><code>POST</code></td>
+                                <td><code>/api/runners/register</code></td>
+                                <td>注册新 Runner</td>
+                            </tr>
+                            <tr>
+                                <td><code>GET</code></td>
+                                <td><code>/api/runners</code></td>
+                                <td>获取所有 Runners 列表及状态</td>
+                            </tr>
+                            <tr>
+                                <td><code>POST</code></td>
+                                <td><code>/api/runners/delete</code></td>
+                                <td>删除指定 Runner</td>
+                            </tr>
+                            <tr>
+                                <td><code>POST</code></td>
+                                <td><code>/api/runners/restart</code></td>
+                                <td>重启指定 Runner</td>
+                            </tr>
+                            <tr>
+                                <td><code>GET</code></td>
+                                <td><code>/api/runners/logs?name=&lt;runner-name&gt;</code></td>
+                                <td>获取 Runner 日志</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>配置文件位置</h2>
+                <p>GitLab Runner 的配置文件和日志存储在持久化目录中,即使重启应用也不会丢失:</p>
+
+                <h3>容器内路径</h3>
+                <pre><code>/home/gitlab-runner/.gitlab-runner/
+├── config.toml              # GitLab Runner 主配置文件
+├── pids/                    # PID 文件目录
+│   └── &lt;runner-name&gt;.pid   # 每个 Runner 的进程 ID
+└── logs/                    # 日志文件目录
+    └── &lt;runner-name&gt;.log   # 每个 Runner 的运行日志</code></pre>
+
+                <h3>宿主机路径</h3>
+                <p>配置文件在宿主机上的对应路径为:</p>
+                <pre><code>/data/appvar/cloud.lazycat.app.xiao.gitlab-ci-runner/configs/</code></pre>
+
+                <div class="alert alert-info">
+                    <strong>提示:</strong> 这个路径映射在 Lazycat 平台上自动配置,您无需手动设置。如需备份或查看配置文件,可以在宿主机上访问此路径。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>常见问题</h2>
+
+                <h3>如何获取 Runner Token?</h3>
+                <p>获取 Runner Token 的步骤:</p>
+                <ul>
+                    <li><strong>项目级别:</strong> 进入 GitLab 项目 → Settings → CI/CD → Runners → Expand → 复制 Registration token</li>
+                    <li><strong>群组级别:</strong> 进入 GitLab 群组 → Settings → CI/CD → Runners → Expand → 复制 Registration token</li>
+                    <li><strong>实例级别:</strong> (需要管理员权限) Admin Area → Overview → Runners → Register an instance runner</li>
+                </ul>
+
+                <h3>注册失败怎么办?</h3>
+                <p>请检查以下几点:</p>
+                <ul>
+                    <li>GitLab URL 是否正确,确保可以从容器内访问</li>
+                    <li>Runner Token 是否有效且未过期</li>
+                    <li>网络连接是否正常</li>
+                    <li>查看应用日志获取详细错误信息</li>
+                </ul>
+
+                <h3>Runner 为什么显示已停止?</h3>
+                <p>可能的原因:</p>
+                <ul>
+                    <li>Runner 进程崩溃或异常退出</li>
+                    <li>系统资源不足</li>
+                    <li>GitLab 服务器连接中断</li>
+                </ul>
+                <p>您可以尝试重启 Runner 或查看日志了解具体原因。</p>
+
+                <h3>如何查看详细日志?</h3>
+                <p>有两种方式查看日志:</p>
+                <ul>
+                    <li><strong>Web 界面:</strong> 点击 Runner 列表中的 "查看日志" 按钮,可以查看最近 1000 行日志</li>
+                    <li><strong>宿主机:</strong> 访问 <code>/data/appvar/cloud.lazycat.app.xiao.gitlab-ci-runner/configs/logs/</code> 目录查看完整日志文件</li>
+                </ul>
+
+                <h3>支持哪些 GitLab 版本?</h3>
+                <p>本工具使用最新版本的 GitLab Runner,理论上支持所有主流的 GitLab 版本(包括 GitLab CE、GitLab EE 和 GitLab.com)。</p>
+
+                <div class="alert alert-warning">
+                    <strong>注意:</strong> 建议使用 GitLab 12.0 及以上版本以获得最佳兼容性。
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>参考资料</h2>
+                <ul>
+                    <li><a href="https://github.com/lazycatapps/ci-runner" target="_blank">项目 GitHub 仓库</a> - 完整的源代码</li>
+                    <li><a href="https://docs.gitlab.com/runner/" target="_blank">GitLab Runner 官方文档</a> - 详细的配置指南</li>
+                    <li><a href="https://docs.gitlab.com/ee/ci/" target="_blank">GitLab CI/CD 文档</a> - CI/CD 完整教程</li>
+                    <li><a href="https://lazycat.cloud" target="_blank">Lazycat 平台</a> - 应用部署平台</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- English Content -->
+        <div id="content-en" class="lang-content">
+            <div class="card">
+                <h2>Welcome to GitLab CI Runner Manager</h2>
+                <p>GitLab CI Runner Manager is a web management interface designed for GitLab Runner, allowing you to easily deploy and manage multiple GitLab CI/CD Runners on the Lazycat platform.</p>
+
+                <p>GitLab Runner is a core component of GitLab CI/CD, responsible for executing continuous integration and continuous delivery tasks. Through the web interface provided by this tool, you can easily register, start, stop Runners, view running status and logs without complex command-line operations.</p>
+
+                <div class="alert alert-warning">
+                    <strong>Important Notice:</strong> The current version only supports GitLab Runner in <strong>shell mode</strong>. Other executor modes such as Docker executor and Kubernetes executor are not yet supported. Stay tuned for future updates!
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Main Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🚀 Simple Web Interface</h4>
+                        <p>Manage all Runners through browser without command-line operations</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📝 Quick Runner Registration</h4>
+                        <p>Register new Runners quickly by entering URL and Token via interface</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Real-time Status Monitoring</h4>
+                        <p>View running status of each Runner (running/stopped)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📋 Log Viewing</h4>
+                        <p>View Runner logs in real-time (last 1000 lines)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔄 Individual Restart</h4>
+                        <p>Support restarting specific Runners individually</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🗑️ Delete Management</h4>
+                        <p>Delete unwanted Runners</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💾 Data Persistence</h4>
+                        <p>Runner configurations are automatically saved, no data loss after restart</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔒 Security Isolation</h4>
+                        <p>Based on Lazycat platform's container isolation technology</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Start</h2>
+                <ol class="steps">
+                    <li>
+                        <strong>Deploy Application on Lazycat Platform</strong>
+                        <p>Visit <a href="https://lazycat.cloud" target="_blank">Lazycat Platform</a>, search and deploy "GitLab CI Runner Manager" with one click.</p>
+                    </li>
+                    <li>
+                        <strong>Access Web Interface</strong>
+                        <p>After successful deployment, access the web management interface through the application's domain.</p>
+                    </li>
+                    <li>
+                        <strong>Register Runner</strong>
+                        <p>Click the "Register Runner" button and enter your GitLab instance URL and Runner Token.</p>
+                        <ul>
+                            <li><strong>GitLab URL:</strong> Your GitLab instance address, e.g., <code>https://gitlab.com</code></li>
+                            <li><strong>Runner Token:</strong> Obtain from Settings → CI/CD → Runners in your GitLab project or group</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Manage Runner</strong>
+                        <p>After successful registration, the Runner will start automatically. You can view status, restart, view logs, or delete Runners through the interface.</p>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h2>API Endpoints</h2>
+                <p>This application provides RESTful API interfaces for automation management:</p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Path</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>GET</code></td>
+                                <td><code>/api/version</code></td>
+                                <td>Get version information</td>
+                            </tr>
+                            <tr>
+                                <td><code>POST</code></td>
+                                <td><code>/api/runners/register</code></td>
+                                <td>Register new Runner</td>
+                            </tr>
+                            <tr>
+                                <td><code>GET</code></td>
+                                <td><code>/api/runners</code></td>
+                                <td>Get all Runners list and status</td>
+                            </tr>
+                            <tr>
+                                <td><code>POST</code></td>
+                                <td><code>/api/runners/delete</code></td>
+                                <td>Delete specified Runner</td>
+                            </tr>
+                            <tr>
+                                <td><code>POST</code></td>
+                                <td><code>/api/runners/restart</code></td>
+                                <td>Restart specified Runner</td>
+                            </tr>
+                            <tr>
+                                <td><code>GET</code></td>
+                                <td><code>/api/runners/logs?name=&lt;runner-name&gt;</code></td>
+                                <td>Get Runner logs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Configuration File Locations</h2>
+                <p>GitLab Runner configuration files and logs are stored in persistent directories and will not be lost even after application restart:</p>
+
+                <h3>Container Path</h3>
+                <pre><code>/home/gitlab-runner/.gitlab-runner/
+├── config.toml              # GitLab Runner main configuration
+├── pids/                    # PID files directory
+│   └── &lt;runner-name&gt;.pid   # Process ID for each Runner
+└── logs/                    # Log files directory
+    └── &lt;runner-name&gt;.log   # Running log for each Runner</code></pre>
+
+                <h3>Host Machine Path</h3>
+                <p>The corresponding path on the host machine for configuration files:</p>
+                <pre><code>/data/appvar/cloud.lazycat.app.xiao.gitlab-ci-runner/configs/</code></pre>
+
+                <div class="alert alert-info">
+                    <strong>Note:</strong> This path mapping is automatically configured on the Lazycat platform, no manual setup required. If you need to backup or view configuration files, you can access this path on the host machine.
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Frequently Asked Questions</h2>
+
+                <h3>How to obtain Runner Token?</h3>
+                <p>Steps to get Runner Token:</p>
+                <ul>
+                    <li><strong>Project Level:</strong> Go to GitLab Project → Settings → CI/CD → Runners → Expand → Copy Registration token</li>
+                    <li><strong>Group Level:</strong> Go to GitLab Group → Settings → CI/CD → Runners → Expand → Copy Registration token</li>
+                    <li><strong>Instance Level:</strong> (Admin permission required) Admin Area → Overview → Runners → Register an instance runner</li>
+                </ul>
+
+                <h3>What to do if registration fails?</h3>
+                <p>Please check the following:</p>
+                <ul>
+                    <li>Is the GitLab URL correct and accessible from within the container?</li>
+                    <li>Is the Runner Token valid and not expired?</li>
+                    <li>Is the network connection normal?</li>
+                    <li>Check application logs for detailed error information</li>
+                </ul>
+
+                <h3>Why does the Runner show as stopped?</h3>
+                <p>Possible reasons:</p>
+                <ul>
+                    <li>Runner process crashed or exited abnormally</li>
+                    <li>Insufficient system resources</li>
+                    <li>GitLab server connection interrupted</li>
+                </ul>
+                <p>You can try restarting the Runner or check logs to understand the specific reason.</p>
+
+                <h3>How to view detailed logs?</h3>
+                <p>There are two ways to view logs:</p>
+                <ul>
+                    <li><strong>Web Interface:</strong> Click the "View Logs" button in the Runner list to view the last 1000 lines of logs</li>
+                    <li><strong>Host Machine:</strong> Access the <code>/data/appvar/cloud.lazycat.app.xiao.gitlab-ci-runner/configs/logs/</code> directory to view complete log files</li>
+                </ul>
+
+                <h3>Which GitLab versions are supported?</h3>
+                <p>This tool uses the latest version of GitLab Runner and theoretically supports all mainstream GitLab versions (including GitLab CE, GitLab EE, and GitLab.com).</p>
+
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> GitLab version 12.0 and above is recommended for best compatibility.
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>References</h2>
+                <ul>
+                    <li><a href="https://github.com/lazycatapps/ci-runner" target="_blank">Project GitHub Repository</a> - Complete source code</li>
+                    <li><a href="https://docs.gitlab.com/runner/" target="_blank">GitLab Runner Official Documentation</a> - Detailed configuration guide</li>
+                    <li><a href="https://docs.gitlab.com/ee/ci/" target="_blank">GitLab CI/CD Documentation</a> - Complete CI/CD tutorial</li>
+                    <li><a href="https://lazycat.cloud" target="_blank">Lazycat Platform</a> - Application deployment platform</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 GitLab CI Runner Manager | Powered by <a href="https://docs.gitlab.com/runner/" target="_blank">GitLab Runner</a></p>
+        <p id="footer-text">如有问题或建议,欢迎反馈</p>
+    </footer>
+
+    <script>
+        let currentLang = 'zh';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const zhContent = document.getElementById('content-zh');
+            const enContent = document.getElementById('content-en');
+            const langBtn = document.getElementById('lang-btn-text');
+            const headerSubtitle = document.getElementById('header-subtitle');
+            const footerText = document.getElementById('footer-text');
+
+            if (currentLang === 'zh') {
+                zhContent.classList.add('active');
+                enContent.classList.remove('active');
+                langBtn.textContent = 'English';
+                headerSubtitle.textContent = '通过 Web 界面轻松管理 GitLab CI/CD Runner';
+                footerText.textContent = '如有问题或建议,欢迎反馈';
+                document.documentElement.lang = 'zh-CN';
+            } else {
+                zhContent.classList.remove('active');
+                enContent.classList.add('active');
+                langBtn.textContent = '中文';
+                headerSubtitle.textContent = 'Manage GitLab CI/CD Runners Easily via Web Interface';
+                footerText.textContent = 'For questions or suggestions, please provide feedback';
+                document.documentElement.lang = 'en';
+            }
+        }
+
+        // Initialize
+        updateLanguage();
+    </script>
+</body>
+</html>

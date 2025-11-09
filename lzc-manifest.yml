@@ -4,13 +4,21 @@ package: cloud.lazycat.app.xiao.gitlab-ci-runner
 version: 0.0.1
 
 # 软件名称,会显示在启动器之类的地方
-name: GitLab CI Runner
-keyword: gitlab,ci,cd,pipeline,devops,automation,continuous-integration,continuous-delivery
-description: GitLab CI Runner 是一个基于 GitLab 的 CI/CD 工具，主要用于持续集成（CI）和持续交付（CD）。
+name: GitLab CI Runner 管理器
+keyword: gitlab,ci,cd,pipeline,devops,automation,continuous-integration,continuous-delivery,runner
+description: GitLab CI Runner 管理器提供了一个简单易用的 Web 界面,用于管理多个 GitLab Runner。支持注册、启动、停止、查看日志等功能。
+
+# 使用说明
+usage: |
+  当前 Runner 管理器仅支持 shell 模式的 Runner，更多模式敬请期待！
 
 locales:
   zh:
-    name: GitLab CI Runner
+    name: GitLab CI Runner 管理器
+    description: 提供简单易用的 Web 界面管理多个 GitLab Runner
+  en:
+    name: GitLab CI Runner Manager
+    description: Simple web interface for managing multiple GitLab Runners
 
 # 软件本身的 license
 license: Apache-2.0
@@ -29,10 +37,11 @@ application:
   # 期望的 app 域名，如果系统中已经有对应域名则会提示用户选择其他域名。 最终 app 分配到的域名以/lzcapp/run/app.subdomain 为准
   subdomain: gitlab-ci-runner
 
+  # HTTP 路由配置 - 转发到 gitlab-ci-runner 服务的 8098 端口
   routes:
     - /=http://gitlab-ci-runner:8098
 
-  # 是否启用多实例
+  # 是否启用多实例模式
   multi_instance: false
 
   # GPU 加速支持
@@ -44,11 +53,37 @@ application:
   # USB 加速支持
   usb_accel: false
 
-services:
-  runner:
-    # lzc-cli appstore copy-image concourse/concourse
-    image: registry.lazycat.cloud/alpine:3.18
+  # 健康检查配置
+  health_check:
+    test_url: http://gitlab-ci-runner:8098
+    start_period: 10s
+    disable: false
 
+services:
+  gitlab-ci-runner:
+    # Docker 镜像 - 使用本地构建的镜像
+    image: registry.lazycat.cloud/liu/lazycatapps/gitlab-ci-runner:c2ff5a58d21c9811
+
+    # 环境变量配置
+    environment:
+      - CONFIG_DIR=/home/gitlab-runner/configs
+
+    # 持久化目录绑定
+    binds:
+      # GitLab Runner 配置目录
+      - /lzcapp/var/configs:/home/gitlab-runner/configs
+
+    # 健康检查
+    health_check:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:8098
+      start_period: 10s
+      disable: false
+
+# 不支持的平台
 unsupported_platforms:
   - ios
   - android
