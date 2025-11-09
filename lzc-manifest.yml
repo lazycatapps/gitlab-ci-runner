@@ -1,0 +1,54 @@
+# app 的唯一 id,上架到商店需要保证不要冲突,尽量使用开发者自己的域名作为后缀.
+package: cloud.lazycat.app.xiao.gitlab-ci-runner
+# app 的版本
+version: 0.0.1
+
+# 软件名称,会显示在启动器之类的地方
+name: GitLab CI Runner
+keyword: gitlab,ci,cd,pipeline,devops,automation,continuous-integration,continuous-delivery
+description: GitLab CI Runner 是一个基于 GitLab 的 CI/CD 工具，主要用于持续集成（CI）和持续交付（CD）。
+
+locales:
+  zh:
+    name: GitLab CI Runner
+
+# 软件本身的 license
+license: Apache-2.0
+
+# 软件的主页,会在商店等地方体现
+homepage: https://github.com/lazycatapps/gitlab-ci-runner
+
+# lpk 的作者,会在商店等地方体现
+author: xiao
+
+# application 作为一个特殊的 container 运行，对应的 service 名称为固定的`app`， 其他 service 可以通过此名称与 app 进行通讯
+application:
+  # 是否存在后台任务， 若存在则系统不会对此 app 进行主动休眠等操作
+  background_task: true
+
+  # 期望的 app 域名，如果系统中已经有对应域名则会提示用户选择其他域名。 最终 app 分配到的域名以/lzcapp/run/app.subdomain 为准
+  subdomain: gitlab-ci-runner
+
+  routes:
+    - /=http://gitlab-ci-runner:8098
+
+  # 是否启用多实例
+  multi_instance: false
+
+  # GPU 加速支持
+  gpu_accel: false
+
+  # KVM 加速支持
+  kvm_accel: false
+
+  # USB 加速支持
+  usb_accel: false
+
+services:
+  runner:
+    # lzc-cli appstore copy-image concourse/concourse
+    image: registry.lazycat.cloud/alpine:3.18
+
+unsupported_platforms:
+  - ios
+  - android

@@ -1,0 +1,63 @@
+name: Build & Push (Docker Hub)
+
+on:
+  push:
+    branches:
+      - "main"
+      - "main-lazycat"
+    paths:
+      - "**"
+      - ".github/workflows/docker-image.yml"
+    tags:
+      - "v*"
+
+  pull_request:
+    branches:
+      - "main"
+      - "main-lazycat"
+    paths:
+      - "**"
+      - ".github/workflows/docker-image.yml"
+
+  workflow_dispatch:
+    inputs:
+      go_version:
+        description: "Go version for building"
+        required: false
+        default: "1.23"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go_version || '1.23' }}
+
+      - name: Build project
+        run: bash build.sh
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  build:
+    needs: prepare
+    uses: ./.github/workflows/reusable-docker-image.yml
+    with:
+      docker_context: ./dist
+      dockerfile_path: ./dist/Dockerfile
+      docker_target: prod
+      enable_go_tests: false
+      go_version: '1.23'
+      go_test_dir: './backend'
+    secrets:
+      dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+      dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}

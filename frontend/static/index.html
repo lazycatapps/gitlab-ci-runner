@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitLab Runner Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GitLab Runner Manager</h1>
+        </header>
+
+        <main>
+            <section class="register-section">
+                <h2>注册新 Runner</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="name">Runner 名称:</label>
+                        <input type="text" id="name" name="name" required placeholder="例如: my-runner">
+                    </div>
+                    <div class="form-group">
+                        <label for="url">GitLab URL:</label>
+                        <input type="url" id="url" name="url" required placeholder="例如: http://gitlab.minicat.heiyu.space">
+                    </div>
+                    <div class="form-group">
+                        <label for="token">Token:</label>
+                        <input type="text" id="token" name="token" required placeholder="例如: glrt-NGgBudPC5wqHKcWYuixy">
+                    </div>
+                    <button type="submit" class="btn btn-primary">注册 Runner</button>
+                </form>
+                <div id="message" class="message"></div>
+            </section>
+
+            <section class="runners-section">
+                <h2>已注册的 Runners</h2>
+                <div id="loading" class="loading">加载中...</div>
+                <div id="runnersContainer">
+                    <table id="runnersTable" class="runners-table" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>URL</th>
+                                <th>Token</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="runnersBody">
+                        </tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        暂无已注册的 Runner
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Log Modal -->
+    <div id="logModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="logModalTitle">Runner 日志</h3>
+                <div class="modal-actions">
+                    <button class="btn btn-refresh btn-small" onclick="refreshLogs()">刷新</button>
+                    <span class="close" onclick="closeLogModal()">&times;</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <pre id="logContent" class="log-content">加载中...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
