@@ -17,7 +17,7 @@ RUN rm -rf /home/gitlab-runner/.bash_logout
 RUN gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
 
 # Switch to gitlab-runner user
-USER gitlab-runner
+USER 0
 WORKDIR /app
 
 COPY start.sh /app/start.sh
