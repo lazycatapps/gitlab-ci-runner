@@ -54,7 +54,7 @@ jobs:
     with:
       docker_context: ./dist
       dockerfile_path: ./dist/Dockerfile
-      docker_target: prod
+      docker_target: ''
       enable_go_tests: false
       go_version: '1.23'
       go_test_dir: './backend'
