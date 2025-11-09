@@ -20,8 +20,8 @@ RUN gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-
 USER 0
 WORKDIR /app
 
-COPY start.sh /app/start.sh
-COPY backend /app/backend
+COPY --chmod=755 start.sh /app/start.sh
+COPY --chmod=755 backend /app/backend
 COPY frontend /app/frontend
 
 # Set entrypoint
